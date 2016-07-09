@@ -49,9 +49,30 @@ class SAX(object):
         """
         Function takes a series of data, x, and transforms it to a string representation
         """
-        (paaX, indices) = self.to_PAA(self.normalize(x))
+        normalized, mean, std = self.normalize(x)
+        (paaX, indices) = self.to_PAA(normalized)
         self.scalingFactor = np.sqrt((len(x) * 1.0) / (self.wordSize * 1.0))
-        return (self.alphabetize(paaX), indices)
+        letter_boundries = [float('-inf')] + self.denormalize(self.beta, mean, std) + [float('inf')]
+        return (self.alphabetize(paaX), indices, letter_boundries)
+    
+    def from_letter_rep(self, string, indices, letter_boundries):
+        def get_centre(lower, upper):
+            if upper == float('inf'):
+                return lower
+            elif lower == float('-inf'):
+                return upper
+            else:
+                return (upper+lower) / 2
+        interval_centres = [get_centre(letter_boundries[index], letter_boundries[index + 1]) for index in range(len(letter_boundries) -1)]
+
+        reconstructed = np.zeros(indices[-1][-1])
+
+        for i in range(len(string)):
+            letter = string[i]
+            letter_range = indices[i]
+
+            reconstructed[letter_range[0]:letter_range[1]] = interval_centres[ord(letter) - self.aOffset]
+        return reconstructed.tolist()
 
     def normalize(self, x):
         """
@@ -63,7 +84,12 @@ class SAX(object):
         X = np.asanyarray(x)
         if X.std() < self.eps:
             return [0 for entry in X]
-        return (X-X.mean())/X.std()
+        mean, std = X.mean(), X.std()
+        return ((X-mean)/std, mean, std)
+
+    def denormalize(self, x, mean, std):
+        X = np.asanyarray(x)
+        return ((X * std) + mean).tolist()
 
     def to_PAA(self, x):
         """

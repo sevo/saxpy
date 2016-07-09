@@ -8,12 +8,12 @@ class TestSAX(object):
 
     def test_to_letter_rep(self):
         arr = [7,1,4,4,4,4]
-        (letters, indices) = self.sax.to_letter_rep(arr)
+        (letters, indices, letter_boundries) = self.sax.to_letter_rep(arr)
         assert letters == 'eacccc'
 
     def test_long_to_letter_rep(self):
         long_arr = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,6,6,6,10,100]
-        (letters, indices) = self.sax.to_letter_rep(long_arr)
+        (letters, indices, letter_boundries) = self.sax.to_letter_rep(long_arr)
         assert letters == 'bbbbce'
 
     def test_compare_strings(self):
@@ -23,3 +23,9 @@ class TestSAX(object):
         similar_score = self.sax.compare_strings(base_string, similar_string)
         dissimilar_score = self.sax.compare_strings(base_string, dissimilar_string)
         assert similar_score < dissimilar_score
+
+    def test_from_letter_rep(self):
+        arr = [7,1,4,4,4,4]
+        (letters, indices, letter_boundries) = self.sax.to_letter_rep(arr)
+        reconstructed = self.sax.from_letter_rep(letters, indices, letter_boundries)
+        assert reconstructed == [5.454922678357857, 2.545077321642143, 4.0, 4.0, 4.0, 4.0]
