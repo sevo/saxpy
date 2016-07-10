@@ -1,4 +1,5 @@
 from saxpy import SAX
+from numpy import allclose
 
 class TestSAX(object):
     def setUp(self):
@@ -28,4 +29,9 @@ class TestSAX(object):
         arr = [7,1,4,4,4,4]
         (letters, indices, letter_boundries) = self.sax.to_letter_rep(arr)
         reconstructed = self.sax.from_letter_rep(letters, indices, letter_boundries)
-        assert reconstructed == [5.454922678357857, 2.545077321642143, 4.0, 4.0, 4.0, 4.0]
+        assert allclose(reconstructed, [5.45, 2.54, 4.0, 4.0, 4.0, 4.0], atol=0.01)
+
+    def test_breakpoints(self):
+        assert allclose(self.sax.breakpoints(3), [-0.43, 0.43], atol=0.01)
+        assert allclose(self.sax.breakpoints(2), [0], atol=0.01)
+        assert allclose(self.sax.breakpoints(20), [-1.64, -1.28, -1.04, -0.84, -0.67, -0.52, -0.39, -0.25, -0.13, 0, 0.13, 0.25, 0.39, 0.52, 0.67, 0.84, 1.04, 1.28, 1.64], atol=0.01)
