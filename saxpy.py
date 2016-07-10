@@ -30,6 +30,9 @@ class SAX(object):
     def breakpoints(self, alphabetSize):
         return list(map(norm.ppf, np.linspace(0,1,alphabetSize+1)[1:-1]))
 
+    def interval_centres(self, alphabetSize):
+        return self.breakpoints(alphabetSize * 2)[::2]
+
 
     def to_letter_rep(self, x):
         """
@@ -38,18 +41,10 @@ class SAX(object):
         normalized, mean, std = self.normalize(x)
         (paaX, indices) = self.to_PAA(normalized)
         self.scalingFactor = np.sqrt((len(x) * 1.0) / (self.wordSize * 1.0))
-        letter_boundries = [float('-inf')] + self.denormalize(self.beta, mean, std) + [float('inf')]
-        return (self.alphabetize(paaX), indices, letter_boundries)
+        interval_centres = self.denormalize(self.interval_centres(self.alphabetSize), mean, std)
+        return (self.alphabetize(paaX), indices, interval_centres)
     
-    def from_letter_rep(self, string, indices, letter_boundries):
-        def get_centre(lower, upper):
-            if upper == float('inf'):
-                return lower
-            elif lower == float('-inf'):
-                return upper
-            else:
-                return (upper+lower) / 2
-        interval_centres = [get_centre(letter_boundries[index], letter_boundries[index + 1]) for index in range(len(letter_boundries) -1)]
+    def from_letter_rep(self, string, indices, interval_centres):
 
         reconstructed = np.zeros(indices[-1][-1])
 

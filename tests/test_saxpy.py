@@ -29,9 +29,18 @@ class TestSAX(object):
         arr = [7,1,4,4,4,4]
         (letters, indices, letter_boundries) = self.sax.to_letter_rep(arr)
         reconstructed = self.sax.from_letter_rep(letters, indices, letter_boundries)
-        assert allclose(reconstructed, [5.45, 2.54, 4.0, 4.0, 4.0, 4.0], atol=0.01)
+        assert allclose(reconstructed, [6.21, 1.78, 4.0, 4.0, 4.0, 4.0], atol=0.01)
 
     def test_breakpoints(self):
         assert allclose(self.sax.breakpoints(3), [-0.43, 0.43], atol=0.01)
         assert allclose(self.sax.breakpoints(2), [0], atol=0.01)
         assert allclose(self.sax.breakpoints(20), [-1.64, -1.28, -1.04, -0.84, -0.67, -0.52, -0.39, -0.25, -0.13, 0, 0.13, 0.25, 0.39, 0.52, 0.67, 0.84, 1.04, 1.28, 1.64], atol=0.01)
+
+    def test_interval_centres(self):
+        assert allclose(self.sax.interval_centres(2), [-0.67, 0.67], atol=0.01)
+        assert allclose(self.sax.interval_centres(3), [-0.96, 0.0, 0.96], atol=0.01)
+        assert allclose(self.sax.interval_centres(30),
+                        [-2.12, -1.64, -1.38, -1.19, -1.03, -0.90, -0.78, -0.67, -0.57,
+                        -0.47, -0.38, -0.29, -0.21, -0.12, -0.04, 0.04, 0.12, 0.21, 0.29,
+                        0.38, 0.47, 0.57, 0.67, 0.78, 0.90, 1.03, 1.19, 1.38, 1.64, 2.12],
+                        atol=0.01)
